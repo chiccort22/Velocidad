@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a84ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Velocidad">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Velocidad y Distancia</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --success: #2e7d32;
+            --danger: #c62828;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --border-radius: 16px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            min-height: 100vh; 
+            padding: 16px 12px;
+            overflow-x: hidden; 
+            max-width: 100%; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* --- ENCABEZADO --- */
+        .app-header {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            color: #ffffff;
+            padding: 20px 16px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            position: relative;
+        }
+
+        .app-header h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.18);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: #ffca28;
+            display: inline-block;
+        }
+
+        .status-badge.active .status-dot {
+            background-color: #00e676;
+            box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7);
+            animation: pulse-green 1.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(0, 230, 118, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+            }
+        }
+
+        /* --- NOTIFICACIÓN RECUPERADO --- */
+        .recovery-banner {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #0d47a1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+        .recovery-banner i {
+            font-size: 1.2rem;
+        }
+
+        /* --- TARJETAS --- */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* --- VELOCIDAD PRINCIPAL --- */
+        .speed-card {
+            text-align: center;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            padding: 24px 18px;
+        }
+
+        .speed-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 6px;
+        }
+
+        .speed-value {
+            font-size: 3.4rem;
+            font-weight: 900;
+            color: var(--success);
+            line-height: 1;
+            margin: 10px 0 4px;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+            transition: color 0.3s ease;
+        }
+
+        .speed-units {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* --- GRID DE DATOS --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .metric-card {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .metric-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* --- INPUTS --- */
+        .inputs-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        input[type="text"], input[type="number"], input[type="time"] { 
+            width: 100%;
+            padding: 14px 16px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 12px;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: #f8fafc; 
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, input[type="time"]:focus {
+            outline: none; 
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+        }
+
+        /* --- BOTONES --- */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 54px; 
+            gap: 10px; 
+            margin-top: 4px;
+        }
+
+        button {
+            color: white;
+            border: none;
+            padding: 14px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.92rem; 
+            font-weight: 700;
+            width: 100%; 
+            transition: all 0.2s ease;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px;
+            min-height: 52px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        #iniciarBtn {
+            background-color: var(--success); 
+            grid-column: span 1;
+        }
+        #iniciarBtn:hover:not(:disabled) {
+            background-color: #236327;
+        }
+        #iniciarBtn:disabled {
+            background-color: #a5d6a7;
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+        
+        #vueltaBtn {
+            background-color: var(--primary);
+        }
+        #vueltaBtn:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+        #vueltaBtn:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+            color: #94a3b8;
+        }
+
+        #borrarBtn {
+            background-color: #ef4444; 
+            padding: 0;
+            border-radius: 12px;
+        }
+        #borrarBtn:hover {
+            background-color: #dc2626;
+        }
+        #borrarBtn i { 
+            font-size: 1.15rem;
+        }
+
+        /* --- MEJOR VELOCIDAD HIGHLIGHT --- */
+        .best-speed-card {
+            background: linear-gradient(135deg, #fff9c4, #fff176);
+            border: 1px solid #ffee58;
+            color: #f57f17;
+            padding: 14px 18px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .best-speed-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .best-speed-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .best-speed-val {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #e65100;
+        }
+
+        /* --- REGISTRO DE VUELTAS --- */
+        .laps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .laps-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 0 4px;
+        }
+
+        .laps-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .lap-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .lap-item:first-child {
+            border-left: 4px solid var(--primary);
+            background-color: #f0f7ff;
+        }
+
+        .lap-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .lap-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .lap-speed {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .lap-speed-unit {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* --- ESTADÍSTICAS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 6px;
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        /* --- NOTIFICACIONES TOAST --- */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+            pointer-events: auto;
+        }
+
+        /* --- MODAL CONFIRMACIÓN --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+            background: #fef2f2;
+            color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 12px;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .modal-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-confirm {
+            background: #ef4444;
+            color: #ffffff;
+        }
+        .btn-confirm:hover {
+            background: #dc2626;
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-12px); }
+        }
+
+        .error-state {
+            color: #ef4444;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            margin-top: auto;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            text-align: center;
+            padding: 16px;
+            width: 100%;
+            max-width: 440px; 
+        }
+
+        @media (max-width: 360px) {
+            .speed-value {
+                font-size: 2.8rem;
+            }
+            .button-grid {
+                grid-template-columns: 1fr 1fr 48px;
+            }
+        }
+    
+
+:root {
+  --primary:#1e88e5; --primary-dark:#1565c0; --success:#2e7d32; --danger:#c62828;
+  --bg-color:#f4f6f9; --card-bg:#ffffff; --text-primary:#1a202c; --text-secondary:#718096;
+  --border-radius:16px; --shadow-sm:0 2px 4px rgba(0,0,0,.04); --shadow-md:0 4px 12px rgba(0,0,0,.08); --shadow-lg:0 8px 24px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{width:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg-color);color:var(--text-primary);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px 12px calc(16px + env(safe-area-inset-bottom));overflow-x:hidden;max-width:100%;-webkit-tap-highlight-color:transparent}
+.container{width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.app-header{background:linear-gradient(135deg,#1e88e5,#1565c0);color:#fff;padding:20px 16px;border-radius:var(--border-radius);box-shadow:var(--shadow-md);text-align:center}
+.app-header h1{font-size:1.35rem;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.status-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);padding:6px 14px;border-radius:9999px;font-size:.82rem;font-weight:600;letter-spacing:.5px;backdrop-filter:blur(4px)}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#00e676;display:inline-block;box-shadow:0 0 0 0 rgba(0,230,118,.7);animation:pulse-green 1.8s infinite}
+@keyframes pulse-green{0%{transform:scale(.95);box-shadow:0 0 0 0 rgba(0,230,118,.7)}70%{transform:scale(1);box-shadow:0 0 0 8px rgba(0,230,118,0)}100%{transform:scale(.95);box-shadow:0 0 0 0 rgba(0,230,118,0)}}
+.card{background:var(--card-bg);border-radius:var(--border-radius);padding:18px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.03)}
+.distance-card{text-align:center;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);border:1px solid #e2e8f0;padding:24px 18px;display:none}
+.distance-card.show{display:block}
+.distance-label{font-size:.85rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.distance-line{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:10px 0 4px}
+.distance-value{font-size:3.4rem;font-weight:900;color:var(--success);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.distance-units{font-size:1.15rem;font-weight:700;color:var(--text-secondary);padding-bottom:5px}
+.meters{font-size:.82rem;font-weight:700;color:var(--text-secondary);margin-top:8px}
+.inputs-card{display:flex;flex-direction:column;gap:16px}
+.point-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.point-title{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.point-title i{color:var(--primary)}
+.input-group{display:flex;flex-direction:column;gap:6px;text-align:left}
+.input-group label{font-size:.85rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px}
+textarea{width:100%;min-height:82px;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:12px;text-align:center;background:#f8fafc;font-size:1rem;font-weight:600;color:var(--text-primary);transition:all .2s ease;-webkit-appearance:none;resize:vertical;font-family:inherit}
+textarea:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(30,136,229,.15)}
+.point-buttons{display:grid;grid-template-columns:1fr 54px;gap:10px;margin-top:2px}
+button{color:white;border:none;padding:14px 12px;border-radius:12px;cursor:pointer;font-size:.92rem;font-weight:700;width:100%;transition:all .2s ease;display:flex;justify-content:center;align-items:center;gap:8px;min-height:52px;box-shadow:var(--shadow-sm)}
+button:active{transform:scale(.97)}
+.locate{background:var(--primary)} .locate:hover{background:var(--primary-dark)}
+.clear{background:#ef4444;padding:0} .clear:hover{background:#dc2626}
+.status{min-height:18px;font-size:.78rem;color:var(--text-secondary);font-weight:600;text-align:center;line-height:1.35}
+.status.ok{color:var(--success)} .status.error{color:#ef4444}
+.main-buttons{display:grid;grid-template-columns:1fr 54px;gap:10px}
+.calculate{background:var(--success)} .calculate:hover{background:#236327}
+.swap{background:var(--primary);padding:0;font-size:1.1rem}
+.coords-result{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;text-align:center}
+.coord-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 6px}
+.coord-box b{display:block;font-size:.68rem;color:var(--text-secondary);text-transform:uppercase;margin-bottom:4px}
+.coord-box span{font-size:.76rem;font-weight:700;word-break:break-word}
+.footer{margin-top:auto;color:var(--text-secondary);font-size:.82rem;text-align:center;padding:16px;width:100%;max-width:440px}
+.note{font-size:.75rem;color:var(--text-secondary);line-height:1.45;text-align:center;padding:0 4px}
+@media(max-width:360px){.distance-value{font-size:2.8rem}.point-buttons,.main-buttons{grid-template-columns:1fr 48px}}
+
+        /* Coordenadas + botón GPS compacto */
+        .coordinate-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 52px;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .coordinate-row textarea,
+        .coordinate-row input {
+            min-width: 0;
+        }
+
+        .gps-icon-btn {
+            width: 52px !important;
+            min-width: 52px;
+            min-height: 52px;
+            padding: 0 !important;
+            border-radius: 12px;
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+            font-size: 1.1rem;
+        }
+
+        .gps-icon-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .gps-icon-btn i {
+            margin: 0;
+        }
+
+    
+
+/* ===== CONTENEDOR UNIFICADO + NAVEGACIÓN ===== */
+:root { --bottom-nav-height: 76px; }
+html { min-height: 100%; }
+body {
+  width: 100% !important;
+  min-height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  overflow-x: hidden !important;
+  background: var(--bg-color, #f4f6f9) !important;
+}
+.app-view {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: visible;
+  padding: 16px 12px calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 20px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-color, #f4f6f9);
+}
+.app-view.active { display: flex; }
+.app-view > .container { flex: 0 0 auto; }
+.app-view > .footer { margin-top: auto; flex: 0 0 auto; }
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5000;
+  min-height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.96);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -6px 24px rgba(15,23,42,.10);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.bottom-nav-inner {
+  max-width: 440px;
+  height: 58px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.bottom-nav .nav-btn {
+  width: 100%;
+  min-height: 58px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #718096;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bottom-nav .nav-btn i { font-size: 1.28rem; }
+.bottom-nav .nav-btn.active { color: #1e88e5; background: #eaf4fe; }
+.bottom-nav .nav-btn:active { transform: scale(.97); }
+
+
+/* ===== LIQUID GLASS iOS — CAPA VISUAL (sin alterar funciones) ===== */
+:root{
+  --primary:#0a84ff; --primary-dark:#0071e3; --success:#30d158; --danger:#ff453a;
+  --bg-color:#eef3f8; --card-bg:rgba(255,255,255,.64); --text-primary:#111827; --text-secondary:#667085;
+  --border-radius:22px; --shadow-sm:0 8px 24px rgba(31,38,52,.07); --shadow-md:0 14px 36px rgba(31,38,52,.10); --shadow-lg:0 22px 60px rgba(0,0,0,.18);
+  --glass-border:rgba(255,255,255,.68); --glass-highlight:rgba(255,255,255,.86); --field-bg:rgba(255,255,255,.58);
+  --nav-bg:rgba(248,250,252,.70); --separator:rgba(15,23,42,.09);
+}
+html{scroll-behavior:smooth;background:var(--bg-color)}
+body{background:
+  radial-gradient(circle at 15% -5%,rgba(10,132,255,.13),transparent 34%),
+  radial-gradient(circle at 100% 25%,rgba(90,200,250,.10),transparent 30%),var(--bg-color)!important;}
+.app-view{background:transparent!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+.container{gap:14px!important}
+.app-header,.card,.best-speed-card,.recovery-banner,.modal-card,.lap-item,.stat-box,.coord-box{
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+}
+.app-header{
+  background:linear-gradient(145deg,rgba(10,132,255,.90),rgba(0,100,220,.78))!important;
+  border:1px solid rgba(255,255,255,.35)!important;border-radius:26px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 14px 34px rgba(0,91,187,.18)!important;
+  padding:18px 16px!important;
+}
+.app-header h1{margin-bottom:7px!important}.app-header h1 i{filter:drop-shadow(0 2px 5px rgba(0,0,0,.15))}
+.status-badge{background:rgba(255,255,255,.17)!important;border:1px solid rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+.card{background:var(--card-bg)!important;border:1px solid var(--glass-border)!important;border-radius:22px!important;box-shadow:inset 0 1px 0 var(--glass-highlight),var(--shadow-sm)!important}
+.speed-card,.distance-card{background:linear-gradient(160deg,rgba(255,255,255,.78),rgba(255,255,255,.46))!important;border:1px solid var(--glass-border)!important;padding:25px 18px!important}
+.speed-value,.distance-value{color:var(--success)!important;letter-spacing:-1.7px!important}
+.metric-card{padding:15px!important}.metric-title i,.point-title i{color:var(--primary)!important}
+.inputs-card{gap:15px!important}
+input[type="text"],input[type="number"],input[type="time"],textarea{
+  background:var(--field-bg)!important;color:var(--text-primary)!important;border:1px solid var(--separator)!important;border-radius:15px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55)!important;
+}
+input[type="text"]:focus,input[type="number"]:focus,input[type="time"]:focus,textarea:focus{
+  background:rgba(255,255,255,.82)!important;border-color:rgba(10,132,255,.65)!important;box-shadow:0 0 0 4px rgba(10,132,255,.13),inset 0 1px 0 rgba(255,255,255,.65)!important;
+}
+button{border-radius:15px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 5px 14px rgba(15,23,42,.08)!important}
+#iniciarBtn,.calculate{background:linear-gradient(180deg,#34d35d,#28b84d)!important}
+#vueltaBtn,.gps-icon-btn,.swap{background:linear-gradient(180deg,#1590ff,#087bea)!important}
+#borrarBtn,.clear,.btn-confirm{background:linear-gradient(180deg,#ff5a52,#ed4037)!important}
+button:active:not(:disabled){transform:scale(.965)!important;filter:brightness(.97)}
+.best-speed-card{background:linear-gradient(145deg,rgba(255,214,10,.22),rgba(255,255,255,.58))!important;border:1px solid rgba(255,196,0,.30)!important;border-radius:22px!important;color:#a86400!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.72),var(--shadow-sm)!important}
+.best-speed-val{color:#b95e00!important}.lap-item{background:rgba(255,255,255,.55)!important;border:1px solid var(--glass-border)!important;border-radius:15px!important}.lap-item:first-child{background:rgba(10,132,255,.08)!important;border-left:3px solid var(--primary)!important}
+.stat-box,.coord-box{background:rgba(255,255,255,.46)!important;border:1px solid var(--glass-border)!important;border-radius:14px!important}
+.recovery-banner{background:rgba(10,132,255,.10)!important;border:1px solid rgba(10,132,255,.20)!important;color:#0565bd!important;border-radius:17px!important}
+.toast{background:rgba(30,30,32,.86)!important;border:1px solid rgba(255,255,255,.15);border-radius:16px!important;-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
+.modal-overlay{background:rgba(10,14,22,.35)!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.modal-card{background:rgba(248,250,252,.84)!important;border:1px solid rgba(255,255,255,.68);border-radius:26px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 24px 70px rgba(0,0,0,.22)!important}
+.modal-icon{background:rgba(255,69,58,.12)!important;color:var(--danger)!important}.btn-cancel{background:rgba(118,118,128,.12)!important;color:var(--text-primary)!important}
+.footer{opacity:.72}
+/* Barra inferior flotante tipo píldora */
+.bottom-nav{
+  left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;
+  width:auto!important;min-height:68px!important;padding:6px!important;
+  background:var(--nav-bg)!important;border:1px solid rgba(255,255,255,.72)!important;border-radius:27px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 14px 42px rgba(15,23,42,.16)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(190%)!important;backdrop-filter:blur(28px) saturate(190%)!important;
+}
+.bottom-nav-inner{max-width:428px!important;height:56px!important;gap:5px!important;position:relative!important;isolation:isolate!important}
+.bottom-nav-inner::before{content:"";position:absolute;z-index:0;top:0;bottom:0;left:0;width:calc((100% - 5px)/2);border-radius:21px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.64);box-shadow:inset 0 1px 0 rgba(255,255,255,.78),0 5px 18px rgba(15,23,42,.10);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);transform:translateX(var(--nav-drag-x, var(--nav-slide,0%)));transition:transform .42s cubic-bezier(.22,1,.36,1),background .25s ease,border-color .25s ease;pointer-events:none}
+.bottom-nav-inner[data-active="distancia"]::before{--nav-slide:calc(100% + 5px)}
+.bottom-nav-inner.dragging::before{transition:none!important}
+.bottom-nav-inner.dragging{touch-action:none;user-select:none;-webkit-user-select:none}
+.bottom-nav .nav-btn{min-height:56px!important;border-radius:21px!important;color:var(--text-secondary)!important;box-shadow:none!important;transition:color .28s ease,transform .16s ease!important;position:relative!important;z-index:1!important;background:transparent!important}
+.bottom-nav .nav-btn.active{color:var(--primary)!important;background:transparent!important;box-shadow:none!important}
+.bottom-nav .nav-btn i{font-size:1.24rem!important}
+@media(min-width:470px){.bottom-nav{left:50%!important;right:auto!important;width:440px!important;transform:translateX(-50%)}}
+@media(prefers-color-scheme:dark){
+ :root{--bg-color:#090b10;--card-bg:rgba(30,32,38,.68);--text-primary:#f5f7fa;--text-secondary:#9aa3b2;--glass-border:rgba(255,255,255,.105);--glass-highlight:rgba(255,255,255,.10);--field-bg:rgba(255,255,255,.055);--nav-bg:rgba(27,29,34,.74);--separator:rgba(255,255,255,.12);--shadow-sm:0 10px 28px rgba(0,0,0,.22);--shadow-md:0 16px 38px rgba(0,0,0,.28)}
+ html{color-scheme:dark} body{background:radial-gradient(circle at 10% 0%,rgba(10,132,255,.15),transparent 30%),radial-gradient(circle at 100% 28%,rgba(94,92,230,.10),transparent 28%),#090b10!important}
+ .app-header{background:linear-gradient(145deg,rgba(10,132,255,.72),rgba(15,73,145,.58))!important;border-color:rgba(255,255,255,.15)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 16px 38px rgba(0,0,0,.28)!important}
+ .card{background:rgba(28,30,36,.68)!important}.speed-card,.distance-card{background:linear-gradient(155deg,rgba(42,44,51,.78),rgba(25,27,32,.62))!important}
+ input[type="text"],input[type="number"],input[type="time"],textarea{background:rgba(255,255,255,.055)!important;color:#f5f7fa!important;border-color:rgba(255,255,255,.11)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important}
+ input[type="text"]:focus,input[type="number"]:focus,input[type="time"]:focus,textarea:focus{background:rgba(255,255,255,.085)!important;border-color:rgba(10,132,255,.70)!important;box-shadow:0 0 0 4px rgba(10,132,255,.16)!important}
+ .lap-item,.stat-box,.coord-box{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.09)!important}.lap-item:first-child{background:rgba(10,132,255,.11)!important}
+ .best-speed-card{background:linear-gradient(145deg,rgba(255,214,10,.13),rgba(255,255,255,.045))!important;border-color:rgba(255,214,10,.20)!important}.best-speed-title{color:#ffd60a!important}.best-speed-val{color:#ffd60a!important}
+ .recovery-banner{background:rgba(10,132,255,.11)!important;border-color:rgba(10,132,255,.22)!important;color:#64b5ff!important}
+ .modal-card{background:rgba(32,34,40,.88)!important;border-color:rgba(255,255,255,.12)!important}.btn-cancel{background:rgba(255,255,255,.09)!important;color:#f5f7fa!important}
+ .bottom-nav{border-color:rgba(255,255,255,.11)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 16px 45px rgba(0,0,0,.42)!important}.bottom-nav .nav-btn.active{background:transparent!important}.bottom-nav-inner::before{background:rgba(255,255,255,.105);border-color:rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 6px 20px rgba(0,0,0,.22)}
+ .status.ok{color:#5ee17a!important}.status.error,.error-state{color:#ff6961!important}
+}
+
+
+/* ===== AJUSTE v3.3 — BARRA DE NAVEGACIÓN MÁS TIPO PÍLDORA =====
+   Solo modifica la geometría visual. El indicador arrastrable conserva su JS. */
+.bottom-nav{
+  left:18px!important;
+  right:18px!important;
+  bottom:calc(12px + env(safe-area-inset-bottom))!important;
+  min-height:60px!important;
+  padding:5px!important;
+  border-radius:999px!important;
+}
+.bottom-nav-inner{
+  max-width:416px!important;
+  height:50px!important;
+  gap:5px!important;
+  border-radius:999px!important;
+}
+.bottom-nav-inner::before{
+  top:0!important;
+  bottom:0!important;
+  width:calc((100% - 5px)/2)!important;
+  border-radius:999px!important;
+}
+.bottom-nav .nav-btn{
+  min-height:50px!important;
+  padding:4px 10px!important;
+  border-radius:999px!important;
+  gap:2px!important;
+}
+.bottom-nav .nav-btn i{
+  font-size:1.18rem!important;
+}
+.bottom-nav .nav-btn span{
+  font-size:.69rem!important;
+}
+@media(min-width:470px){
+  .bottom-nav{
+    left:50%!important;
+    right:auto!important;
+    width:416px!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
+</style>
+</head>
+<body>
+<section id="velocidadView" class="app-view active" aria-label="Velocidad">
+<div id="toastContainer"></div>
+
+    <div class="container">
+        
+        <!-- ENCABEZADO -->
+        <header class="app-header">
+            <h1><i class="fas fa-[#000] fa-dove"></i> </h1>
+            <div class="status-badge" id="statusBadge">
+                <span class="status-dot"></span>
+                <span id="statusText">LISTO PARA INICIAR</span>
+            </div>
+        </header>
+
+        <!-- NOTIFICACIÓN DE RECUPERACIÓN -->
+        <div class="recovery-banner" id="recoveryBanner" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>CÁLCULO RECUPERADO</strong><br>
+                <span>El cálculo anterior continúa activo.</span>
+            </div>
+        </div>
+
+        <!-- TARJETA PRINCIPAL DE VELOCIDAD -->
+        <main class="card speed-card">
+            <div class="speed-label">VELOCIDAD MEDIA</div>
+            <div class="speed-value" id="velocidadPrincipal">0.00</div>
+            <div class="speed-units">m/min</div>
+        </main>
+
+        <!-- MEJOR VELOCIDAD REGISTRADA (DESTACADO) -->
+        <div class="best-speed-card" id="bestSpeedCard" style="display: none;">
+            <div class="best-speed-info">
+                <span class="best-speed-title"><i class="fas fa-trophy"></i> MEJOR VELOCIDAD</span>
+                <span class="best-speed-val" id="bestSpeedVal">0.00 m/min</span>
+            </div>
+            <i class="fas fa-award" style="font-size: 2rem; opacity: 0.8;"></i>
+        </div>
+
+        <!-- DATOS PRINCIPALES -->
+        <section class="metrics-grid">
+            <div class="card metric-card">
+                <span class="metric-title"><i class="far fa-clock"></i> HORA</span>
+                <span class="metric-value" id="hora_actual_sistema">--:--:--</span>
+            </div>
+            <div class="card metric-card">
+                <span class="metric-title"><i class="fas fa-stopwatch"></i> TIEMPO</span>
+                <span class="metric-value" id="tiempoTranscurridoVal">00m:00s</span>
+            </div>
+        </section>
+
+        <!-- CONFIGURACIÓN DE ENTRADA -->
+        <section class="card inputs-card">
+            <div class="input-group">
+                <label for="hora_inicio"><i class="fas fa-flag-checkered"></i> Hora de Suelta (HH:MM):</label>
+                <input type="time" id="hora_inicio" value="08:00:00" step="1" aria-label="Hora de suelta"> 
+            </div>
+
+            <div class="input-group">
+                <label for="distancia"><i class="fas fa-route"></i> Distancia a Recorrer (km):</label>
+                <input type="number" id="distancia" value="30" min="0" step="any" aria-label="Distancia a recorrer en kilómetros">
+            </div>
+
+            <!-- CONTROLES -->
+            <div class="button-grid">
+                <button id="iniciarBtn" onclick="iniciarCalculadoraAutomatica()" aria-label="Iniciar Cálculo">
+                    <i class="fas fa-play"></i> INICIAR
+                </button>
+                <button id="vueltaBtn" onclick="registrarVuelta()" disabled aria-label="Registrar Vuelta">
+                    <i class="fas fa-flag"></i> VUELTA
+                </button>
+                <button id="borrarBtn" onclick="confirmarBorrado()" aria-label="Borrar Cálculo">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- MENSAJES DE ESTADO / ERROR -->
+        <div id="resultado" style="display: none;"></div>
+
+        <!-- REGISTRO DE VUELTAS -->
+        <section class="card laps-container" id="registroVueltas" style="display: none;">
+            <div class="laps-header">
+                <span><i class="fas fa-list-ol"></i> Registro de Vueltas</span>
+            </div>
+
+            <ul class="laps-list" id="listaVueltas"></ul>
+
+            <!-- ESTADÍSTICAS -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-box">
+                    <div class="stat-label">Vueltas</div>
+                    <div class="stat-value" id="statNumVueltas">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Promedio</div>
+                    <div class="stat-value" id="statPromedio">0.00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Máxima</div>
+                    <div class="stat-value" id="statMax">0.00</div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN AL BORRAR -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="modal-title">¿Borrar cálculo actual?</div>
+            <div class="modal-text">Se eliminarán los datos en curso y todas las vueltas registradas.</div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="cerrarModal()">CANCELAR</button>
+                <button class="btn-confirm" onclick="ejecutarReset()">BORRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 | Desarrollado por CHICCO</p>
+    </footer>
+</section>
+<section id="distanciaView" class="app-view" aria-label="Distancia">
+<div class="container">
+<header class="app-header">
+            <h1 aria-label="Paloma"><i class="fas fa-dove"></i></h1>
+        </header>
+
+<main id="resultCard" class="card distance-card" aria-live="polite">
+  <div class="distance-label">DISTANCIA EN LÍNEA RECTA</div>
+  <div class="distance-line"><span id="distanceKm" class="distance-value">0.000</span><span class="distance-units">km</span></div>
+  <div id="distanceMeters" class="meters">0 metros</div>
+  <div class="coords-result">
+    <div class="coord-box"><b>Palomar</b><span id="homeNormalized">—</span></div>
+    <div class="coord-box"><b>Punto de suelta</b><span id="releaseNormalized">—</span></div>
+  </div>
+  <button class="calculate" type="button" onclick="usarDistanciaEnVelocidad()" style="margin-top:14px;"><i class="fas fa-arrow-right"></i> USAR EN VELOCIDAD</button>
+</main>
+
+<section class="card inputs-card">
+  <div class="point-heading"><div class="point-title"><i class="fas fa-house"></i> PALOMAR</div></div>
+  <div class="input-group">
+    <label for="homeInput"><i class="fas fa-location-dot"></i> Coordenadas:</label>
+    <div class="coordinate-row">
+                    <textarea id="homeInput" autocomplete="off" spellcheck="false" placeholder="Ej. 20.123456, -103.123456"></textarea>
+                    <button class="gps-icon-btn" type="button" onclick="useLocation('home')" aria-label="Usar mi ubicación" title="Usar mi ubicación">
+                        <i class="fas fa-location-crosshairs"></i>
+                    </button>
+                </div>
+  </div>
+  <div class="point-buttons">
+  </div>
+  <div id="homeStatus" class="status"></div>
+</section>
+
+<section class="card inputs-card">
+  <div class="point-heading"><div class="point-title"><i class="fas fa-flag-checkered"></i> PUNTO DE SUELTA</div></div>
+  <div class="input-group">
+    <label for="releaseInput"><i class="fas fa-location-dot"></i> Coordenadas:</label>
+    <div class="coordinate-row">
+                    <textarea id="releaseInput" autocomplete="off" spellcheck="false" placeholder="Ej. 21°01'12.2&quot;N 102°18'44.5&quot;W"></textarea>
+                    <button class="gps-icon-btn" type="button" onclick="useLocation('release')" aria-label="Usar mi ubicación" title="Usar mi ubicación">
+                        <i class="fas fa-location-crosshairs"></i>
+                    </button>
+                </div>
+  </div>
+  <div class="point-buttons">
+  </div>
+  <div id="releaseStatus" class="status"></div>
+</section>
+
+<div class="main-buttons">
+  <button class="calculate" type="button" onclick="calculateDistance()"><i class="fas fa-ruler-combined"></i> CALCULAR DISTANCIA</button>
+  <button class="swap" type="button" onclick="swapPoints()" title="Intercambiar puntos"><i class="fas fa-right-left"></i></button>
+</div>
+
+</div>
+<footer class="footer"><p>© 2025 | Desarrollado por CHICCO</p></footer>
+</section>
+
+<nav class="bottom-nav" aria-label="Navegación principal">
+  <div class="bottom-nav-inner">
+    <button type="button" id="tabVelocidad" class="nav-btn active" aria-label="Velocidad">
+      <i class="fas fa-gauge-high"></i><span>Velocidad</span>
+    </button>
+    <button type="button" id="tabDistancia" class="nav-btn" aria-label="Distancia">
+      <i class="fas fa-ruler-combined"></i><span>Distancia</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+
+        let intervaloCalculo = null; 
+        let horaInicioUsuario = null; 
+        let contadorVueltas = 0;
+        let listaVueltasData = [];
+
+        const iniciarBtn = document.getElementById('iniciarBtn');
+        const vueltaBtn = document.getElementById('vueltaBtn'); 
+        const statusBadge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        const velocidadPrincipal = document.getElementById('velocidadPrincipal');
+        const tiempoTranscurridoVal = document.getElementById('tiempoTranscurridoVal');
+        const bestSpeedCard = document.getElementById('bestSpeedCard');
+        const bestSpeedVal = document.getElementById('bestSpeedVal');
+        const recoveryBanner = document.getElementById('recoveryBanner');
+
+        // Notificación Toast Personalizada (elimina alert)
+        function showToast(mensaje, icon = 'fa-exclamation-circle') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${mensaje}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // ----------------------------------------------------------------------
+        // Funciones para guardar y cargar el estado en localStorage
+        // ----------------------------------------------------------------------
+        
+        function guardarEstado() {
+            if (!horaInicioUsuario && !document.getElementById('distancia').value && !document.getElementById('hora_inicio').value) return;
+
+            const estado = {
+                horaInicioInput: document.getElementById('hora_inicio').value,
+                distancia: document.getElementById('distancia').value,
+                horaInicioTimestamp: horaInicioUsuario ? horaInicioUsuario.getTime() : null, 
+                isRunning: !!horaInicioUsuario, 
+                iniciarBtnDisabled: iniciarBtn.disabled,
+                contadorVueltas: contadorVueltas,
+                vueltasHTML: document.getElementById('listaVueltas').innerHTML,
+                vueltasData: listaVueltasData
+            };
+            
+            localStorage.setItem('calculadoraEstado', JSON.stringify(estado));
+        }
+
+        function cargarEstado() {
+            const estadoGuardado = localStorage.getItem('calculadoraEstado');
+            if (!estadoGuardado) {
+                return; 
+            }
+
+            const estado = JSON.parse(estadoGuardado);
+
+            // 1. Restaurar valores de los inputs
+            document.getElementById('hora_inicio').value = estado.horaInicioInput || '08:00:00';
+            document.getElementById('distancia').value = estado.distancia || '30';
+            
+            // 2. Restaurar variables internas
+            horaInicioUsuario = estado.horaInicioTimestamp ? new Date(estado.horaInicioTimestamp) : null;
+            contadorVueltas = estado.contadorVueltas || 0;
+            listaVueltasData = estado.vueltasData || [];
+
+            // 3. Restaurar el estado del botón de inicio
+            iniciarBtn.disabled = estado.iniciarBtnDisabled || false;
+            if (iniciarBtn.disabled) {
+                 iniciarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> EN CURSO';
+                 statusBadge.classList.add('active');
+                 statusText.textContent = 'EN CURSO';
+            } else {
+                 iniciarBtn.innerHTML = '<i class="fas fa-play"></i> INICIAR';
+                 statusBadge.classList.remove('active');
+                 statusText.textContent = 'LISTO PARA INICIAR';
+            }
+            
+            // Si la aplicación no estaba activa, salimos.
+            if (!estado.isRunning) return;
+
+            // 4. Restaurar la lista de vueltas y estadísticas
+            const listaVueltas = document.getElementById('listaVueltas');
+            listaVueltas.innerHTML = estado.vueltasHTML || '';
+            if (estado.vueltasHTML && estado.vueltasHTML.trim() !== '') {
+                document.getElementById('registroVueltas').style.display = 'flex';
+                actualizarEstadisticas();
+            }
+            
+            // 5. Iniciar el cálculo si estaba corriendo
+            vueltaBtn.disabled = false; 
+            intervaloCalculo = setInterval(calcularVelocidad, 1000);
+
+            // Mostrar aviso visual de recuperación
+            recoveryBanner.style.display = 'flex';
+            setTimeout(() => {
+                recoveryBanner.style.display = 'none';
+            }, 4000);
+        }
+
+        // ----------------------------------------------------------------------
+        // Funciones principales
+        // ----------------------------------------------------------------------
+        
+        function formatearMinutosSegundos(milisegundos) {
+            const segundosTotales = Math.floor(milisegundos / 1000);
+            const minutos = Math.floor(segundosTotales / 60);
+            const segundos = segundosTotales % 60; 
+            const minutosFormateados = String(minutos).padStart(2, '0');
+            const segundosFormateados = String(segundos).padStart(2, '0');
+            return `${minutosFormateados}m:${segundosFormateados}s`;
+        }
+
+        function confirmarBorrado() {
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+        
+        function resetearCalculadora() {
+            confirmarBorrado();
+        }
+
+        function ejecutarReset() {
+            cerrarModal();
+            if (intervaloCalculo) {
+                clearInterval(intervaloCalculo);
+            }
+            intervaloCalculo = null;
+            contadorVueltas = 0;
+            horaInicioUsuario = null;
+            listaVueltasData = [];
+
+            // Restablecer la interfaz de usuario
+            iniciarBtn.innerHTML = '<i class="fas fa-play"></i> INICIAR';
+            iniciarBtn.disabled = false; 
+            vueltaBtn.disabled = true;
+            statusBadge.classList.remove('active');
+            statusText.textContent = 'LISTO PARA INICIAR';
+
+            // Conservar los últimos datos ingresados en Hora de Suelta y Distancia.
+            velocidadPrincipal.textContent = '0.00';
+            tiempoTranscurridoVal.textContent = '00m:00s';
+
+            document.getElementById('listaVueltas').innerHTML = '';
+            document.getElementById('registroVueltas').style.display = 'none';
+            bestSpeedCard.style.display = 'none';
+            recoveryBanner.style.display = 'none';
+
+            localStorage.removeItem('calculadoraEstado');
+            guardarEstado(); 
+            showToast('Calculadora reiniciada correctamente.', 'fa-check-circle');
+        }
+
+        function iniciarCalculadoraAutomatica() {
+            const horaInicioStr = document.getElementById('hora_inicio').value;
+            const distanciaKm = parseFloat(document.getElementById('distancia').value);
+
+            if (isNaN(distanciaKm) || distanciaKm <= 0) {
+                showToast('Introduce una distancia válida (mayor a 0).');
+                return;
+            }
+            
+            if (!iniciarBtn.disabled) { 
+                 horaInicioUsuario = crearObjetoFechaConHora(horaInicioStr);
+                 document.getElementById('listaVueltas').innerHTML = '';
+                 contadorVueltas = 0;
+                 listaVueltasData = [];
+                 document.getElementById('registroVueltas').style.display = 'none';
+                 bestSpeedCard.style.display = 'none';
+            }
+            
+            if (!horaInicioUsuario) {
+                showToast('Formato de hora inválido. Usa HH:MM:SS.');
+                return;
+            }
+
+            if (intervaloCalculo) {
+                clearInterval(intervaloCalculo); 
+            }
+            
+            vueltaBtn.disabled = false;
+            
+            iniciarBtn.disabled = true;
+            iniciarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> EN CURSO';
+            statusBadge.classList.add('active');
+            statusText.textContent = 'CÁLCULO EN CURSO';
+            
+            calcularVelocidad(); 
+            intervaloCalculo = setInterval(calcularVelocidad, 1000);
+
+            guardarEstado();
+        }
+        
+        function registrarVuelta() {
+            if (!intervaloCalculo || !horaInicioUsuario) return; 
+
+            const distanciaKm = parseFloat(document.getElementById('distancia').value);
+            const horaActual = new Date();
+
+            // Ajuste para permitir cruce de medianoche si corresponde
+            if (horaActual < horaInicioUsuario && (horaInicioUsuario - horaActual) > 43200000) {
+                horaInicioUsuario.setDate(horaInicioUsuario.getDate() - 1);
+            }
+
+            const diferenciaMs = horaActual - horaInicioUsuario;
+            const tiempoMin = diferenciaMs / 60000; 
+
+            if (tiempoMin <= 0) {
+                showToast('Aún no ha transcurrido tiempo suficiente para registrar una vuelta.');
+                return;
+            }
+
+            const distanciaMetros = distanciaKm * 1000;
+            const velocidadMMin = distanciaMetros / tiempoMin;
+
+            contadorVueltas++;
+            listaVueltasData.push(velocidadMMin);
+
+            const listaVueltas = document.getElementById('listaVueltas');
+            const registroVueltasDiv = document.getElementById('registroVueltas');
+            
+            const nuevaVuelta = document.createElement('li');
+            nuevaVuelta.className = 'lap-item';
+            
+            const minutos = Math.floor(tiempoMin);
+            const segundos = Math.floor((diferenciaMs / 1000) % 60); 
+            const centesimas = Math.floor((diferenciaMs % 1000) / 10);
+            
+            const tiempoFormateado = 
+                `${String(minutos).padStart(2, '0')}:` + 
+                `${String(segundos).padStart(2, '0')}:` + 
+                `${String(centesimas).padStart(2, '0')}`; 
+
+            nuevaVuelta.innerHTML = `
+                <div>
+                    <span class="lap-number">Vuelta ${contadorVueltas}</span>
+                    <span class="lap-time"><i class="far fa-clock"></i> ${tiempoFormateado}</span>
+                </div>
+                <div class="lap-speed">
+                    ${velocidadMMin.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    <span class="lap-speed-unit">m/min</span>
+                </div>
+            `;
+            
+            listaVueltas.prepend(nuevaVuelta); 
+            registroVueltasDiv.style.display = 'flex'; 
+
+            actualizarEstadisticas();
+            guardarEstado();
+        }
+
+        function actualizarEstadisticas() {
+            if (listaVueltasData.length === 0) return;
+
+            const maxVel = Math.max(...listaVueltasData);
+            const sumVel = listaVueltasData.reduce((a, b) => a + b, 0);
+            const avgVel = sumVel / listaVueltasData.length;
+
+            document.getElementById('statNumVueltas').textContent = listaVueltasData.length;
+            document.getElementById('statPromedio').textContent = avgVel.toFixed(1);
+            document.getElementById('statMax').textContent = maxVel.toFixed(1);
+
+            // Destacar mejor velocidad
+            bestSpeedVal.textContent = `${maxVel.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})} m/min`;
+            bestSpeedCard.style.display = 'flex';
+        }
+
+        function crearObjetoFechaConHora(horaStr) {
+            const partes = horaStr.split(':');
+            
+            if (partes.length < 2 || partes.length > 3) return null; 
+
+            const h = parseInt(partes[0]);
+            const m = parseInt(partes[1]);
+            const s = partes.length === 3 ? parseInt(partes[2]) : 0; 
+
+            if (isNaN(h) || isNaN(m) || isNaN(s) || h < 0 || h > 23 || m < 0 || m > 59 || s < 0 || s > 59) {
+                return null; 
+            }
+
+            const fecha = new Date();
+            fecha.setHours(h, m, s, 0); 
+
+            // Manejo de cruce de medianoche: si la hora seleccionada es posterior a la hora actual en más de 12 horas,
+            // asumimos que pertenecía al día anterior (p. ej. vuelo nocturno)
+            const ahora = new Date();
+            if (fecha > ahora && (fecha - ahora) > 43200000) {
+                fecha.setDate(fecha.getDate() - 1);
+            }
+
+            return fecha;
+        }
+
+        function calcularVelocidad() {
+            const distanciaKm = parseFloat(document.getElementById('distancia').value);
+            const horaActualDiv = document.getElementById('hora_actual_sistema');
+
+            const horaActual = new Date();
+            horaActualDiv.textContent = horaActual.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', second: '2-digit'}); 
+            
+            if (!horaInicioUsuario) return;
+
+            // Manejo dinámico si la hora asignada es posterior por cambio de día
+            let diferenciaMs = horaActual - horaInicioUsuario;
+            if (diferenciaMs < 0 && Math.abs(diferenciaMs) > 43200000) {
+                horaInicioUsuario.setDate(horaInicioUsuario.getDate() - 1);
+                diferenciaMs = horaActual - horaInicioUsuario;
+            }
+
+            const tiempoMinDecimal = diferenciaMs / 60000; 
+
+            if (tiempoMinDecimal < 0) {
+                 velocidadPrincipal.textContent = "0.00";
+                 tiempoTranscurridoVal.textContent = "00m:00s";
+                 return;
+            }
+            
+            const distanciaMetros = distanciaKm * 1000;
+            const velocidadMMin = tiempoMinDecimal > 0 ? distanciaMetros / tiempoMinDecimal : 0; 
+            
+            const tiempoFormateado = formatearMinutosSegundos(diferenciaMs); 
+            
+            velocidadPrincipal.textContent = velocidadMMin.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            tiempoTranscurridoVal.textContent = tiempoFormateado;
+        }
+        
+        function actualizarHoraSistema() {
+             const horaActual = new Date();
+             document.getElementById('hora_actual_sistema').textContent = horaActual.toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+        }
+        
+        setInterval(actualizarHoraSistema, 1000); 
+        actualizarHoraSistema(); 
+
+        document.getElementById('hora_inicio').addEventListener('input', guardarEstado);
+        document.getElementById('distancia').addEventListener('input', guardarEstado);
+        document.getElementById('hora_inicio').addEventListener('change', guardarEstado);
+        document.getElementById('distancia').addEventListener('change', guardarEstado);
+
+        window.addEventListener('DOMContentLoaded', cargarEstado);
+        window.addEventListener('beforeunload', guardarEstado);
+
+    
+</script>
+<script>
+
+  const $ = id => document.getElementById(id);
+
+  function normalizeText(text) {
+    return text
+      .trim()
+      .toUpperCase()
+      .replace(/[−–—]/g, '-')
+      .replace(/[º˚]/g, '°')
+      .replace(/[′’´]/g, "'")
+      .replace(/[″“”]/g, '"')
+      .replace(/\s+/g, ' ');
+  }
+
+  function extractFromMapUrl(raw) {
+    let decoded = raw;
+    try { decoded = decodeURIComponent(raw); } catch(e) {}
+    const patterns = [
+      /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/i,
+      /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?)[,%20+\s]+(-?\d+(?:\.\d+)?)/i,
+      /\/place\/(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/i
+    ];
+    for (const p of patterns) {
+      const m = decoded.match(p);
+      if (m) return { lat: Number(m[1]), lon: Number(m[2]) };
+    }
+    return null;
+  }
+
+  function coordComponentToDecimal(part) {
+    part = normalizeText(part);
+    const hemiMatch = part.match(/[NSEW]/);
+    const hemi = hemiMatch ? hemiMatch[0] : null;
+
+    // Keep only coordinate-related characters.
+    const cleaned = part.replace(/[NSEW]/g, ' ').trim();
+    const nums = cleaned.match(/[-+]?\d+(?:[.,]\d+)?/g);
+    if (!nums || !nums.length) return null;
+
+    const values = nums.map(n => Number(n.replace(',', '.')));
+    let deg = Math.abs(values[0]);
+    const min = values.length > 1 ? values[1] : 0;
+    const sec = values.length > 2 ? values[2] : 0;
+
+    if (min >= 60 || sec >= 60) return null;
+
+    let val = deg + min / 60 + sec / 3600;
+    const explicitNegative = values[0] < 0;
+    if (hemi === 'S' || hemi === 'W' || explicitNegative) val *= -1;
+    return val;
+  }
+
+  function parseCoordinates(raw) {
+    if (!raw || !raw.trim()) throw new Error('Escribe unas coordenadas.');
+
+    const fromUrl = extractFromMapUrl(raw);
+    if (fromUrl) return validateCoords(fromUrl);
+
+    let text = normalizeText(raw);
+
+    // DMS/DDM with hemisphere letters: capture each full component ending in N/S/E/W.
+    const hemiComponents = text.match(/[-+]?\d+(?:[.,]\d+)?(?:\s*°)?(?:\s*\d+(?:[.,]\d+)?\s*['’]?)?(?:\s*\d+(?:[.,]\d+)?\s*["”]?)?\s*[NSEW]/g);
+    if (hemiComponents && hemiComponents.length >= 2) {
+      let lat = null, lon = null;
+      for (const comp of hemiComponents) {
+        const h = (comp.match(/[NSEW]/) || [])[0];
+        const val = coordComponentToDecimal(comp);
+        if (h === 'N' || h === 'S') lat = val;
+        if (h === 'E' || h === 'W') lon = val;
+      }
+      if (lat !== null && lon !== null) return validateCoords({lat, lon});
+    }
+
+    // Hemispheres placed before the value, e.g. N 20.1 W 103.2
+    const prefix = text.match(/([NS])\s*([-+]?\d+(?:[.,]\d+)?)\s*[,; ]+\s*([EW])\s*([-+]?\d+(?:[.,]\d+)?)/);
+    if (prefix) {
+      const lat = Math.abs(Number(prefix[2].replace(',','.'))) * (prefix[1] === 'S' ? -1 : 1);
+      const lon = Math.abs(Number(prefix[4].replace(',','.'))) * (prefix[3] === 'W' ? -1 : 1);
+      return validateCoords({lat, lon});
+    }
+
+    // Plain decimal coordinates separated by comma / semicolon / whitespace.
+    const decimalPairs = text.match(/[-+]?\d+(?:[.,]\d+)?/g);
+    if (decimalPairs && decimalPairs.length >= 2 && !/[°'"]/.test(text)) {
+      // If comma is being used as pair separator, standard decimal point is expected.
+      // Convert decimal comma only when semicolon or strong whitespace separator is present.
+      let a, b;
+      const semi = text.match(/([-+]?\d+(?:[.,]\d+)?)\s*;\s*([-+]?\d+(?:[.,]\d+)?)/);
+      if (semi) {
+        a = Number(semi[1].replace(',','.'));
+        b = Number(semi[2].replace(',','.'));
+      } else {
+        const pair = text.match(/([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)/);
+        if (pair) {
+          a = Number(pair[1]);
+          b = Number(pair[2]);
+        } else {
+          const spacePair = text.match(/([-+]?\d+(?:[.,]\d+)?)\s+([-+]?\d+(?:[.,]\d+)?)/);
+          if (!spacePair) throw new Error('No pude reconocer el formato.');
+          a = Number(spacePair[1].replace(',','.'));
+          b = Number(spacePair[2].replace(',','.'));
+        }
+      }
+      return validateCoords({lat:a, lon:b});
+    }
+
+    // DMS/DDM separated by comma or semicolon without hemisphere.
+    const parts = text.split(/\s*[,;]\s*/);
+    if (parts.length === 2) {
+      const lat = coordComponentToDecimal(parts[0]);
+      const lon = coordComponentToDecimal(parts[1]);
+      if (lat !== null && lon !== null) return validateCoords({lat, lon});
+    }
+
+    throw new Error('No pude reconocer esas coordenadas.');
+  }
+
+  function validateCoords({lat, lon}) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error('Las coordenadas no son válidas.');
+    if (Math.abs(lat) > 90) throw new Error('La latitud debe estar entre -90 y 90.');
+    if (Math.abs(lon) > 180) throw new Error('La longitud debe estar entre -180 y 180.');
+    return {lat, lon};
+  }
+
+  function fmtCoord({lat, lon}) {
+    return `${lat.toFixed(7)}, ${lon.toFixed(7)}`;
+  }
+
+  function setStatus(point, text, type='') {
+    const el = $(point + 'Status');
+    el.textContent = text;
+    el.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function useLocation(point) {
+    if (!navigator.geolocation) {
+      setStatus(point, 'Este navegador no admite geolocalización.', 'error');
+      return;
+    }
+    setStatus(point, 'Obteniendo ubicación…');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const coords = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude
+        };
+        $(point + 'Input').value = fmtCoord(coords);
+        if (point === 'home') guardarCoordenadasPalomar();
+        const acc = Math.round(pos.coords.accuracy);
+        setStatus(point, `Ubicación obtenida · precisión aprox. ±${acc} m`, 'ok');
+      },
+      err => {
+        const msg = {
+          1:'Permiso de ubicación denegado.',
+          2:'No fue posible determinar la ubicación.',
+          3:'La solicitud de ubicación tardó demasiado.'
+        }[err.code] || 'No fue posible obtener la ubicación.';
+        setStatus(point, msg, 'error');
+      },
+      { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
+    );
+  }
+
+  function clearPoint(point) {
+    $(point + 'Input').value = '';
+    setStatus(point, 'Campo limpiado.');
+    $('resultCard').classList.remove('show');
+  }
+
+  function swapPoints() {
+    const a = $('homeInput').value;
+    $('homeInput').value = $('releaseInput').value;
+    $('releaseInput').value = a;
+    $('resultCard').classList.remove('show');
+    setStatus('home', 'Puntos intercambiados.');
+    setStatus('release', 'Puntos intercambiados.');
+  }
+
+  // Vincenty inverse formula on the WGS-84 ellipsoid.
+  function vincentyDistance(lat1, lon1, lat2, lon2) {
+    const a = 6378137;
+    const f = 1 / 298.257223563;
+    const b = (1 - f) * a;
+
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const L = (lon2 - lon1) * Math.PI / 180;
+
+    const U1 = Math.atan((1 - f) * Math.tan(φ1));
+    const U2 = Math.atan((1 - f) * Math.tan(φ2));
+    const sinU1 = Math.sin(U1), cosU1 = Math.cos(U1);
+    const sinU2 = Math.sin(U2), cosU2 = Math.cos(U2);
+
+    let λ = L, λPrev, iter = 0;
+    let sinσ, cosσ, σ, sinα, cosSqα, cos2σm;
+
+    do {
+      const sinλ = Math.sin(λ), cosλ = Math.cos(λ);
+      sinσ = Math.sqrt(
+        (cosU2 * sinλ) ** 2 +
+        (cosU1 * sinU2 - sinU1 * cosU2 * cosλ) ** 2
+      );
+      if (sinσ === 0) return 0;
+
+      cosσ = sinU1 * sinU2 + cosU1 * cosU2 * cosλ;
+      σ = Math.atan2(sinσ, cosσ);
+      sinα = cosU1 * cosU2 * sinλ / sinσ;
+      cosSqα = 1 - sinα ** 2;
+      cos2σm = cosSqα !== 0 ? cosσ - 2 * sinU1 * sinU2 / cosSqα : 0;
+
+      const C = f / 16 * cosSqα * (4 + f * (4 - 3 * cosSqα));
+      λPrev = λ;
+      λ = L + (1 - C) * f * sinα *
+          (σ + C * sinσ *
+          (cos2σm + C * cosσ * (-1 + 2 * cos2σm ** 2)));
+    } while (Math.abs(λ - λPrev) > 1e-12 && ++iter < 200);
+
+    if (iter >= 200) return haversineDistance(lat1, lon1, lat2, lon2);
+
+    const uSq = cosSqα * (a*a - b*b) / (b*b);
+    const A = 1 + uSq/16384 * (4096 + uSq * (-768 + uSq * (320 - 175*uSq)));
+    const B = uSq/1024 * (256 + uSq * (-128 + uSq * (74 - 47*uSq)));
+    const Δσ = B * sinσ * (
+      cos2σm + B/4 * (
+        cosσ * (-1 + 2*cos2σm**2) -
+        B/6 * cos2σm * (-3 + 4*sinσ**2) * (-3 + 4*cos2σm**2)
+      )
+    );
+    return b * A * (σ - Δσ);
+  }
+
+  function haversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371008.8;
+    const toRad = d => d * Math.PI / 180;
+    const φ1 = toRad(lat1), φ2 = toRad(lat2);
+    const dφ = toRad(lat2-lat1), dλ = toRad(lon2-lon1);
+    const h = Math.sin(dφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+    return 2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1-h));
+  }
+
+  let ultimaDistanciaCalculadaKm = null;
+
+  function calculateDistance() {
+    let home, release, hasError = false;
+    try {
+      home = parseCoordinates($('homeInput').value);
+      setStatus('home', 'Coordenadas reconocidas correctamente.', 'ok');
+    } catch(e) {
+      setStatus('home', e.message, 'error');
+      hasError = true;
+    }
+    try {
+      release = parseCoordinates($('releaseInput').value);
+      setStatus('release', 'Coordenadas reconocidas correctamente.', 'ok');
+    } catch(e) {
+      setStatus('release', e.message, 'error');
+      hasError = true;
+    }
+    if (hasError) {
+      $('resultCard').classList.remove('show');
+      return;
+    }
+
+    const meters = vincentyDistance(home.lat, home.lon, release.lat, release.lon);
+    const km = meters / 1000;
+    ultimaDistanciaCalculadaKm = km;
+
+    $('distanceKm').textContent = km.toLocaleString('es-MX', {
+      minimumFractionDigits:3,
+      maximumFractionDigits:3
+    });
+    $('distanceMeters').textContent =
+      `${Math.round(meters).toLocaleString('es-MX')} metros`;
+    $('homeNormalized').textContent = fmtCoord(home);
+    $('releaseNormalized').textContent = fmtCoord(release);
+    $('resultCard').classList.add('show');
+    $('resultCard').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function usarDistanciaEnVelocidad() {
+    if (!Number.isFinite(ultimaDistanciaCalculadaKm)) return;
+    const campoDistancia = document.getElementById('distancia');
+    campoDistancia.value = ultimaDistanciaCalculadaKm.toFixed(3);
+    campoDistancia.dispatchEvent(new Event('input', { bubbles: true }));
+    campoDistancia.dispatchEvent(new Event('change', { bubbles: true }));
+    document.getElementById('tabVelocidad').click();
+    setTimeout(() => campoDistancia.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  }
+
+  // Validate while leaving the field, without interrupting typing.
+  ['home','release'].forEach(point => {
+    $(point+'Input').addEventListener('blur', () => {
+      const value = $(point+'Input').value.trim();
+      if (!value) return;
+      try {
+        const c = parseCoordinates(value);
+        setStatus(point, `Reconocido: ${fmtCoord(c)}`, 'ok');
+      } catch(e) {
+        setStatus(point, e.message, 'error');
+      }
+    });
+  });
+
+        // Guardar únicamente las coordenadas del palomar.
+        const PALOMAR_STORAGE_KEY = 'coordenadasPalomar';
+
+        function guardarCoordenadasPalomar() {
+            const campo = document.getElementById('homeInput');
+            if (!campo) return;
+            const valor = campo.value.trim();
+
+            if (valor) {
+                localStorage.setItem(PALOMAR_STORAGE_KEY, valor);
+            } else {
+                localStorage.removeItem(PALOMAR_STORAGE_KEY);
+            }
+        }
+
+        function cargarCoordenadasPalomar() {
+            const campo = document.getElementById('homeInput');
+            if (!campo) return;
+
+            const guardadas = localStorage.getItem(PALOMAR_STORAGE_KEY);
+            if (guardadas) {
+                campo.value = guardadas;
+            }
+        }
+
+        // Guarda cambios escritos o pegados manualmente.
+        document.getElementById('homeInput').addEventListener('input', guardarCoordenadasPalomar);
+        document.getElementById('homeInput').addEventListener('change', guardarCoordenadasPalomar);
+
+        // Recupera el palomar al abrir o recargar la aplicación.
+        window.addEventListener('DOMContentLoaded', cargarCoordenadasPalomar);
+
+    
+</script>
+<script>
+(function() {
+  const views = { velocidad: document.getElementById('velocidadView'), distancia: document.getElementById('distanciaView') };
+  const tabs = { velocidad: document.getElementById('tabVelocidad'), distancia: document.getElementById('tabDistancia') };
+
+  function cambiarVista(nombre) {
+    const navInner = document.querySelector('.bottom-nav-inner');
+    if (navInner) navInner.dataset.active = nombre;
+    Object.keys(views).forEach(k => {
+      const activo = k === nombre;
+      views[k].classList.toggle('active', activo);
+      tabs[k].classList.toggle('active', activo);
+      tabs[k].setAttribute('aria-current', activo ? 'page' : 'false');
+    });
+    try { localStorage.setItem('palomasActiveTool', nombre); } catch (e) {}
+  }
+
+  tabs.velocidad.addEventListener('click', () => cambiarVista('velocidad'));
+  tabs.distancia.addEventListener('click', () => cambiarVista('distancia'));
+
+  // Indicador Liquid Glass interactivo: sigue el dedo y hace snap al soltar.
+  const navInner = document.querySelector('.bottom-nav-inner');
+  let dragging = false;
+  let startX = 0;
+  let startPos = 0;
+  let currentPos = 0;
+  let maxTravel = 0;
+  let moved = false;
+
+  function measureTravel() {
+    if (!navInner) return 0;
+    const styles = getComputedStyle(navInner);
+    const gap = parseFloat(styles.columnGap || styles.gap) || 0;
+    return Math.max(0, (navInner.clientWidth - gap) / 2 + gap);
+  }
+
+  function setDragPosition(px) {
+    currentPos = Math.max(0, Math.min(maxTravel, px));
+    navInner.style.setProperty('--nav-drag-x', currentPos + 'px');
+  }
+
+  function finishDrag() {
+    if (!dragging) return;
+    dragging = false;
+    navInner.classList.remove('dragging');
+    const destino = currentPos >= maxTravel / 2 ? 'distancia' : 'velocidad';
+    navInner.style.removeProperty('--nav-drag-x');
+    cambiarVista(destino);
+  }
+
+  if (navInner) {
+    navInner.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      maxTravel = measureTravel();
+      startPos = navInner.dataset.active === 'distancia' ? maxTravel : 0;
+      currentPos = startPos;
+      startX = e.clientX;
+      moved = false;
+      dragging = true;
+      navInner.classList.add('dragging');
+      navInner.setPointerCapture?.(e.pointerId);
+      setDragPosition(startPos);
+    });
+
+    navInner.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 3) moved = true;
+      setDragPosition(startPos + dx);
+      if (moved) e.preventDefault();
+    });
+
+    navInner.addEventListener('pointerup', finishDrag);
+    navInner.addEventListener('pointercancel', finishDrag);
+  }
+
+  let inicial = 'velocidad';
+  try {
+    const guardada = localStorage.getItem('palomasActiveTool');
+    if (guardada === 'distancia' || guardada === 'velocidad') inicial = guardada;
+  } catch (e) {}
+  cambiarVista(inicial);
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+  });
+}
+</script>
+</body>
+</html>
