@@ -3,12 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a84ff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Velocidad">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1e88e5">
 <title>Velocidad y Distancia</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -910,6 +905,42 @@ button:active:not(:disabled){transform:scale(.965)!important;filter:brightness(.
     right:auto!important;
     width:416px!important;
     transform:translateX(-50%)!important;
+  }
+}
+
+
+
+/* ===== SAFE AREA iPHONE / PWA =====
+   Mantiene el contenido fuera de la barra de estado sin alterar funciones. */
+html {
+  min-height: 100%;
+  background: var(--bg-color, #f4f6f9);
+}
+
+body {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+}
+
+.app-view {
+  /* 16px normales + la zona segura superior real del iPhone */
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+}
+
+/* Los avisos flotantes tampoco deben quedar bajo Dynamic Island/notch */
+#toastContainer {
+  top: calc(20px + env(safe-area-inset-top, 0px)) !important;
+}
+
+/* Conserva la píldora inferior por encima del indicador Home */
+.bottom-nav {
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@supports (padding: max(0px)) {
+  .app-view {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
   }
 }
 
@@ -1880,14 +1911,6 @@ button:active:not(:disabled){transform:scale(.965)!important;filter:brightness(.
   } catch (e) {}
   cambiarVista(inicial);
 })();
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
-  });
-}
 </script>
 </body>
 </html>
