@@ -957,6 +957,53 @@ body {
   resize: none !important;
   overflow: hidden !important;
 }
+
+/* ===== AJUSTE v3.9 — BOTÓN VUELTA INACTIVO ===== */
+#vueltaBtn:disabled {
+  background: #d1d5db !important;
+  color: #6b7280 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 5px 14px rgba(15,23,42,.06) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  #vueltaBtn:disabled {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+    box-shadow: none !important;
+  }
+}
+
+
+/* ===== AJUSTE v4.1 — ESTADO ACTIVO SIN ALTERAR LA LÓGICA ===== */
+/* Antes de iniciar no se muestra ningún estado. */
+#velocidadView .status-badge:not(.active) {
+  display: none !important;
+}
+
+/* Con cálculo activo: paloma + punto verde + EN CURSO en una sola línea. */
+#velocidadView .app-header:has(.status-badge.active) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+}
+
+#velocidadView .app-header:has(.status-badge.active) h1 {
+  margin: 0 !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+}
+
+#velocidadView .app-header:has(.status-badge.active) .status-badge {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -1049,7 +1096,7 @@ body {
             <ul class="laps-list" id="listaVueltas"></ul>
 
             <!-- ESTADÍSTICAS -->
-            <div class="stats-grid" id="statsGrid">
+            <div class="stats-grid" id="statsGrid" style="display:none;">
                 <div class="stat-box">
                     <div class="stat-label">Vueltas</div>
                     <div class="stat-value" id="statNumVueltas">0</div>
@@ -1124,7 +1171,7 @@ body {
   <div class="input-group">
     <label for="releaseInput"><i class="fas fa-location-dot"></i> Coordenadas:</label>
     <div class="coordinate-row">
-                    <textarea id="releaseInput" autocomplete="off" spellcheck="false" placeholder="Ej. 20.123456, -103.123456"></textarea>
+                    <textarea id="releaseInput" autocomplete="off" spellcheck="false" placeholder="Ej. 21°01'12.2&quot;N 102°18'44.5&quot;W"></textarea>
                     <button class="gps-icon-btn" type="button" onclick="useLocation('release')" aria-label="Usar mi ubicación" title="Usar mi ubicación">
                         <i class="fas fa-location-crosshairs"></i>
                     </button>
@@ -1344,7 +1391,7 @@ body {
             iniciarBtn.disabled = true;
             iniciarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> EN CURSO';
             statusBadge.classList.add('active');
-            statusText.textContent = 'CÁLCULO EN CURSO';
+            statusText.textContent = 'EN CURSO';
             
             calcularVelocidad(); 
             intervaloCalculo = setInterval(calcularVelocidad, 1000);
