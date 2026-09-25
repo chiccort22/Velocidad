@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1e88e5">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <title>Velocidad y Distancia</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -790,10 +791,13 @@ body {
   --nav-bg:rgba(248,250,252,.70); --separator:rgba(15,23,42,.09);
 }
 html{scroll-behavior:smooth;background:var(--bg-color)}
-body{background:
-  radial-gradient(circle at 15% -5%,rgba(10,132,255,.13),transparent 34%),
-  radial-gradient(circle at 100% 25%,rgba(90,200,250,.10),transparent 30%),var(--bg-color)!important;}
-.app-view{background:transparent!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+/* v7.5 — Fondo raíz sólido para Safari/PWA; el efecto visual vive dentro de la app */
+html,body{background:#ffffff!important;}
+.app-view{
+  background:
+    radial-gradient(circle at 15% -5%,rgba(10,132,255,.13),transparent 34%),
+    radial-gradient(circle at 100% 25%,rgba(90,200,250,.10),transparent 30%),
+    var(--bg-color)!important;padding-top:max(16px,env(safe-area-inset-top))!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
 .container{gap:14px!important}
 .app-header,.card,.best-speed-card,.recovery-banner,.modal-card,.lap-item,.stat-box,.coord-box{
   -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
