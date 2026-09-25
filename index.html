@@ -1999,5 +1999,30 @@ body {
   cambiarVista(inicial);
 })();
 </script>
+<script>
+/* v4.2 — Mantener pantalla encendida durante un cálculo */
+(function(){
+ let lock=null;
+ const activo=()=>document.getElementById('statusBadge')?.classList.contains('active');
+ async function encender(){
+   if(!('wakeLock' in navigator)||lock||!activo()) return;
+   try{
+     lock=await navigator.wakeLock.request('screen');
+     lock.addEventListener('release',()=>{lock=null;});
+   }catch(e){}
+ }
+ async function apagar(){
+   if(!lock) return;
+   try{await lock.release();}catch(e){}
+   lock=null;
+ }
+ document.getElementById('iniciarBtn')?.addEventListener('click',()=>setTimeout(encender,0));
+ document.querySelector('.btn-confirm')?.addEventListener('click',()=>setTimeout(()=>{if(!activo()) apagar();},0));
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&activo()) encender();});
+ /* Si se recupera un cálculo guardado, la primera interacción reactiva Wake Lock. */
+ function recuperar(){if(activo()) encender();}
+ document.addEventListener('pointerdown',recuperar,{passive:true});
+})();
+</script>
 </body>
 </html>
