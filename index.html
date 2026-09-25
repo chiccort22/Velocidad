@@ -1345,6 +1345,11 @@ body {
             statusBadge.classList.remove('active');
             statusText.textContent = 'LISTO PARA INICIAR';
 
+            // Liberar Wake Lock al finalizar/borrar el cálculo.
+            if (typeof liberarWakeLockPantalla === 'function') {
+                liberarWakeLockPantalla();
+            }
+
             // Conservar los últimos datos ingresados en Hora de Suelta y Distancia.
             velocidadPrincipal.textContent = '0.00';
             tiempoTranscurridoVal.textContent = '00m:00s';
@@ -1392,6 +1397,12 @@ body {
             iniciarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> EN CURSO';
             statusBadge.classList.add('active');
             statusText.textContent = 'EN CURSO';
+
+            // Solicitar Wake Lock directamente desde la interacción INICIAR.
+            // Esto es especialmente importante en iOS/PWA.
+            if (typeof solicitarWakeLockPantalla === 'function') {
+                solicitarWakeLockPantalla();
+            }
             
             calcularVelocidad(); 
             intervaloCalculo = setInterval(calcularVelocidad, 1000);
@@ -2000,29 +2011,57 @@ body {
 })();
 </script>
 <script>
-/* v4.2 — Mantener pantalla encendida durante un cálculo */
-(function(){
- let lock=null;
- const activo=()=>document.getElementById('statusBadge')?.classList.contains('active');
- async function encender(){
-   if(!('wakeLock' in navigator)||lock||!activo()) return;
-   try{
-     lock=await navigator.wakeLock.request('screen');
-     lock.addEventListener('release',()=>{lock=null;});
-   }catch(e){}
- }
- async function apagar(){
-   if(!lock) return;
-   try{await lock.release();}catch(e){}
-   lock=null;
- }
- document.getElementById('iniciarBtn')?.addEventListener('click',()=>setTimeout(encender,0));
- document.querySelector('.btn-confirm')?.addEventListener('click',()=>setTimeout(()=>{if(!activo()) apagar();},0));
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&activo()) encender();});
- /* Si se recupera un cálculo guardado, la primera interacción reactiva Wake Lock. */
- function recuperar(){if(activo()) encender();}
- document.addEventListener('pointerdown',recuperar,{passive:true});
-})();
+/* ===== v7.4 — WAKE LOCK CORREGIDO PARA iOS / PWA ===== */
+let wakeLockPantalla = null;
+let wakeLockSolicitando = false;
+
+function calculoVelocidadActivo() {
+    return !!document.getElementById('statusBadge')?.classList.contains('active');
+}
+
+async function solicitarWakeLockPantalla() {
+    if (!('wakeLock' in navigator) || wakeLockPantalla || wakeLockSolicitando || !calculoVelocidadActivo()) return;
+
+    wakeLockSolicitando = true;
+    try {
+        wakeLockPantalla = await navigator.wakeLock.request('screen');
+        wakeLockPantalla.addEventListener('release', () => {
+            wakeLockPantalla = null;
+        }, { once: true });
+    } catch (error) {
+        wakeLockPantalla = null;
+        console.warn('Wake Lock no disponible:', error);
+    } finally {
+        wakeLockSolicitando = false;
+    }
+}
+
+async function liberarWakeLockPantalla() {
+    const lock = wakeLockPantalla;
+    wakeLockPantalla = null;
+    if (!lock) return;
+    try {
+        await lock.release();
+    } catch (error) {
+        console.warn('No se pudo liberar Wake Lock:', error);
+    }
+}
+
+/* iOS puede liberar Wake Lock al mandar la PWA a segundo plano.
+   Al volver visible, se solicita nuevamente si el cálculo continúa activo. */
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && calculoVelocidadActivo()) {
+        solicitarWakeLockPantalla();
+    }
+});
+
+/* Si iOS exige nuevamente una interacción tras regresar a la PWA,
+   el primer toque mientras el cálculo siga activo vuelve a solicitarlo. */
+document.addEventListener('pointerdown', () => {
+    if (calculoVelocidadActivo() && !wakeLockPantalla) {
+        solicitarWakeLockPantalla();
+    }
+}, { passive: true });
 </script>
 </body>
 </html>
