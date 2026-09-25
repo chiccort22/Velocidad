@@ -1013,6 +1013,27 @@ body { background-color: #ffffff !important; }
   html, body, .app-view { background: #000000 !important; }
 }
 
+
+/* ===== AJUSTE v4.3 — BARRA DE ESTADO iOS REALMENTE SÓLIDA ===== */
+/* Capa sólida exclusiva para el safe-area superior. Evita que el blur/sombra
+   del encabezado se vea detrás de la hora, señal, Wi‑Fi y batería. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: #ffffff;
+  z-index: 99999;
+  pointer-events: none;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (prefers-color-scheme: dark) {
+  body::before { background: #000000 !important; }
+}
+
 </style>
 </head>
 <body>
